@@ -11,29 +11,40 @@ const anthropic = new Anthropic({
 
 function App() {
 
-  const [textInput, setTextInput] = useState("");
+  const [textInput, setTextInput] = useState("Paste text here");
   const [textOutput, setTextOutput] = useState("");
   const [summaryCount, setSummaryCount] = useState(10);
-
+  function clear()
+  {
+    setTextInput("");
+    setTextOutput("");
+  }
   async function summarize() {
+    try{
     const text = textInput;
+    
     const response = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20240620',
       max_tokens: 200,
-      system: 'You are a text summarizer. When asked to summarize a text send back the summary.',
+      system: 'You are a text summarizer. When asked to summarize a text, send back the summary of it. Please only send back the summary without prefixing it with things like "Summary" or telling where the text is from. Also give me the summary as if the original author wrote it and without using a third person voice.',
       messages: [
         {
           'role': 'user',
           'content': [
             {
               'type': 'text',
-              'text': `Summarize this text: ${text}`
+              'text': `Summarize this text. Limit the length to ${summaryCount} words: ${text}`
             }
           ]
         }
       ]
     });
     setTextOutput(response.content[0].text)
+    }
+    catch(e)
+    { 
+      console.log(e.messages, "Error");
+    }
   }
 
   return (
